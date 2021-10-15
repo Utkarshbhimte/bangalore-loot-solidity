@@ -5,7 +5,6 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
-import "hardhat/console.sol";
 
 // We need to import the helper functions from the contract that we copy/pasted.
 import {Base64} from "./libraries/Base64.sol";
@@ -75,7 +74,7 @@ contract MyEpicNFT is ERC721URIStorage {
     // ];
 
     constructor() ERC721("SquareNFT", "SQUARE") {
-        console.log("This is my NFT contract. Woah!");
+        // console.log("This is my NFT contract. Woah!");
     }
 
     function pickRandomFirstWord(uint256 tokenId)
@@ -219,16 +218,16 @@ contract MyEpicNFT is ERC721URIStorage {
             abi.encodePacked("data:application/json;base64,", json)
         );
 
-        console.log("\n--------------------");
-        console.log(
-            string(
-                abi.encodePacked(
-                    "https://nftpreview.0xdev.codes/?code=",
-                    finalTokenUri
-                )
-            )
-        );
-        console.log("--------------------\n");
+        // console.log("\n--------------------");
+        // console.log(
+        //     string(
+        //         abi.encodePacked(
+        //             "https://nftpreview.0xdev.codes/?code=",
+        //             finalTokenUri
+        //         )
+        //     )
+        // );
+        // console.log("--------------------\n");
 
         _safeMint(msg.sender, newItemId);
 
@@ -236,11 +235,11 @@ contract MyEpicNFT is ERC721URIStorage {
         _setTokenURI(newItemId, finalTokenUri);
 
         _tokenIds.increment();
-        console.log(
-            "An NFT w/ ID %s has been minted to %s",
-            newItemId,
-            msg.sender
-        );
+        // console.log(
+        //     "An NFT w/ ID %s has been minted to %s",
+        //     newItemId,
+        //     msg.sender
+        // );
 
         emit NewEpicNFTMinted(msg.sender, newItemId);
     }

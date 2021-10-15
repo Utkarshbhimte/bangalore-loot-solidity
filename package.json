@@ -6,7 +6,9 @@
   "scripts": {
     "local": "npx hardhat run scripts/run.js",
     "deploy-matic": "npx hardhat run scripts/deploy.js --network matic",
-    "deploy-rinkeby": "npx hardhat run scripts/deploy.js --network rinkeby",
+    "deploy": "npx hardhat run scripts/deploy.js --network rinkeby",
+    "flatten": "npx hardhat flatten > output.sol",
+    "verify": "npx hardhat verify 0xDF392AEff9E69343358f8f5a38f92b2ECA5D5c57 --network rinkeby",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -21,6 +23,7 @@
     "hardhat": "^2.6.5"
   },
   "dependencies": {
+    "@nomiclabs/hardhat-etherscan": "^2.1.6",
     "@openzeppelin/contracts": "^4.3.2",
     "dotenv": "^10.0.0"
   }
