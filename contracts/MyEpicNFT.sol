@@ -5,6 +5,7 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
+// import "hardhat/console.sol";
 
 // We need to import the helper functions from the contract that we copy/pasted.
 import {Base64} from "./libraries/Base64.sol";
@@ -16,9 +17,9 @@ contract MyEpicNFT is ERC721URIStorage {
     event NewEpicNFTMinted(address sender, uint256 tokenId);
 
     string baseSvg =
-        '<svg width="350" height="350" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet"><style>.base{fill:#212121;font-family:Helvetica, sans-serif;font-size:20px;font-weight:700;text-anchor:start}</style><rect fill="#000" width="100%" height="100%" />';
+        '<svg width="350" height="350" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet"><style>.base{fill:#212121;font-family:Helvetica, sans-serif;font-size:20px;font-weight:700;text-anchor:start}</style>';
 
-    string[] startupJob = [
+    string[] allStartupJob = [
         "A developer",
         "A techboi",
         "A designer",
@@ -27,7 +28,7 @@ contract MyEpicNFT is ERC721URIStorage {
         "A content manager",
         "A marketer"
     ];
-    string[] startupType = [
+    string[] allStartupType = [
         "a fintech",
         "an edtech",
         "a dukaantech",
@@ -40,7 +41,7 @@ contract MyEpicNFT is ERC721URIStorage {
         "a B2B",
         "a B2C"
     ];
-    string[] startupTask = [
+    string[] allStartupTask = [
         "finalising landing page content",
         "working on a friday night",
         "re-designing UI",
@@ -50,7 +51,7 @@ contract MyEpicNFT is ERC721URIStorage {
         "talking to investors"
     ];
 
-    string[] bangaloreThing = [
+    string[] allBangaloreMoments = [
         "after booking their cult class",
         "from a third wave cafe",
         "while eating meghana biryani",
@@ -63,79 +64,80 @@ contract MyEpicNFT is ERC721URIStorage {
         "while swiping through swiggy"
     ];
 
-    // string[] background = [
-    //     "Qmd1QZqrNicuVzDys3LU3ukdZvHTSQDqTn7cu8R8EpcvXa",
-    //     "QmS7qrVQgLsKPCneNxgJFW8A5kYkuqU1LmLib4q73KC3Q8",
-    //     "QmbKKLjzmb76xwJ3eA8hykfRaMFmwEof3VA6V3aBbbGi45",
-    //     "QmQRyNmPkPp9HLhPyEgyAkBWWLV1r4XJnA3S9LtTH7jcn5",
-    //     "QmQRyNmPkPp9HLhPyEgyAkBWWLV1r4XJnA3S9LtTH7jcn5",
-    //     "QmTdiF1QrRgNimaMCShZsYN1t1R4ME3REnhQh6bwSxXeDp",
-    //     "Qmf8gSvHKQ9Eyxd5A3VLnDddJZRvGrmBM5ZJPT3zeyBPCP"
-    // ];
+    string[] allBackgrounds = [
+        "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"
+    ];
 
     constructor() ERC721("SquareNFT", "SQUARE") {
         // console.log("This is my NFT contract. Woah!");
     }
 
-    function pickRandomFirstWord(uint256 tokenId)
+    function pickRandomStartupJob(uint256 tokenId)
         public
         view
         returns (string memory)
     {
         uint256 rand = random(
-            string(abi.encodePacked("FIRST_WORD", Strings.toString(tokenId)))
+            string(abi.encodePacked("STARTUP_JOB", Strings.toString(tokenId)))
         );
-        rand = rand % startupJob.length;
-        return startupJob[rand];
+        rand = rand % allStartupJob.length;
+        return allStartupJob[rand];
     }
 
-    function pickRandomSecondWord(uint256 tokenId)
+    function pickRandomStartupType(uint256 tokenId)
         public
         view
         returns (string memory)
     {
         uint256 rand = random(
-            string(abi.encodePacked("SECOND_WORD", Strings.toString(tokenId)))
+            string(abi.encodePacked("STARTUP_TYPE", Strings.toString(tokenId)))
         );
-        rand = rand % startupType.length;
-        return startupType[rand];
+        rand = rand % allStartupType.length;
+        return allStartupType[rand];
     }
 
-    function pickRandomThirdWord(uint256 tokenId)
+    function pickRandomStartupTask(uint256 tokenId)
         public
         view
         returns (string memory)
     {
         uint256 rand = random(
-            string(abi.encodePacked("THIRD_WORD", Strings.toString(tokenId)))
+            string(abi.encodePacked("STARTUP_TASK", Strings.toString(tokenId)))
         );
-        rand = rand % startupTask.length;
-        return startupTask[rand];
+        rand = rand % allStartupTask.length;
+        return allStartupTask[rand];
     }
 
-    function pickRandomFourthWord(uint256 tokenId)
+    function pickRandomBangaloreMoment(uint256 tokenId)
         public
         view
         returns (string memory)
     {
         uint256 rand = random(
-            string(abi.encodePacked("FORTH_WORD", Strings.toString(tokenId)))
+            string(
+                abi.encodePacked("BANGALORE_MOMENT", Strings.toString(tokenId))
+            )
         );
-        rand = rand % bangaloreThing.length;
-        return bangaloreThing[rand];
+        rand = rand % allBangaloreMoments.length;
+        return allBangaloreMoments[rand];
     }
 
-    // function pickRandomBackground(uint256 tokenId)
-    //     public
-    //     view
-    //     returns (string memory)
-    // {
-    //     uint256 rand = random(
-    //         string(abi.encodePacked("BG", Strings.toString(tokenId)))
-    //     );
-    //     rand = rand % background.length;
-    //     return background[rand];
-    // }
+    function pickRandomBackground(uint256 tokenId)
+        public
+        view
+        returns (string memory)
+    {
+        uint256 rand = random(
+            string(abi.encodePacked("BG", Strings.toString(tokenId)))
+        );
+        rand = rand % allBackgrounds.length;
+        return allBackgrounds[rand];
+    }
 
     function random(string memory input) internal pure returns (uint256) {
         return uint256(keccak256(abi.encodePacked(input)));
@@ -144,10 +146,10 @@ contract MyEpicNFT is ERC721URIStorage {
     function makeAnEpicNFT() public {
         uint256 newItemId = _tokenIds.current();
 
-        string memory first = pickRandomFirstWord(newItemId);
-        string memory second = pickRandomSecondWord(newItemId);
-        string memory third = pickRandomThirdWord(newItemId);
-        string memory fourth = pickRandomFourthWord(newItemId);
+        string memory first = pickRandomStartupJob(newItemId);
+        string memory second = pickRandomStartupType(newItemId);
+        string memory third = pickRandomStartupTask(newItemId);
+        string memory fourth = pickRandomBangaloreMoment(newItemId);
 
         string memory plainText = string(
             abi.encodePacked(
@@ -178,22 +180,27 @@ contract MyEpicNFT is ERC721URIStorage {
             )
         );
 
-        // string memory bgId = pickRandomBackground(newItemId);
-        // string memory backgroundSVG = string(
-        //     abi.encodePacked(
-        //         '<defs><pattern id="img1" patternUnits="userSpaceOnUse" width="350" height="350"><image preserveAspectRatio="xMinYMin slice" href="https://ipfs.infura.io/ipfs/',
-        //         bgId,
-        //         '" x="0" y="0" width="350" height="350" /></pattern></defs><rect fill="url(#img1)" width="100%" height="100%" />'
-        //     )
-        // );
+        string memory currBackground = pickRandomBackground(newItemId);
+
         string memory backgroundSVG = string(
             abi.encodePacked(
-                "<svg xmlns='http://www.w3.org/2000/svg' width='350' height='350'><defs><linearGradient id='g1' gradientUnits='userSpaceOnUse' x1='-9.15%' y1='15.85%' x2='109.15%' y2='84.15%'><stop stop-color='#a1c4fd'/><stop offset='1' stop-color='#c2e9fb'/></linearGradient></defs><rect width='100%' height='100%' fill='url(#g1)'/></svg>"
+                " <style>",
+                "svg {",
+                "background-size: cover;",
+                'background-image: url("data:image/jpeg;base64,',
+                currBackground,
+                '");}</style>'
             )
         );
 
         string memory finalSvg = string(
-            abi.encodePacked(baseSvg, backgroundSVG, combinedWord, "</svg>")
+            abi.encodePacked(
+                baseSvg,
+                backgroundSVG,
+                '<defs><filter id="blurry"><feGaussianBlur stdDeviation="5" in="SourceGraphic"></feGaussianBlur></filter></defs>',
+                combinedWord,
+                "</svg>"
+            )
         );
 
         // Get all the JSON metadata in place and base64 encode it.
@@ -201,10 +208,11 @@ contract MyEpicNFT is ERC721URIStorage {
             bytes(
                 string(
                     abi.encodePacked(
-                        '{"name": "',
-                        // We set the title of our NFT as the generated word.
+                        '{"name": "Bangalore moment #',
+                        toString(newItemId),
+                        '", "description": "',
                         plainText,
-                        '", "description": "Just Bangalore TechBro things.", "image": "data:image/svg+xml;base64,',
+                        '", "image": "data:image/svg+xml;base64,',
                         // We add data:image/svg+xml;base64 and then append our base64 encode our svg.
                         Base64.encode(bytes(finalSvg)),
                         '"}'
@@ -218,29 +226,35 @@ contract MyEpicNFT is ERC721URIStorage {
             abi.encodePacked("data:application/json;base64,", json)
         );
 
-        // console.log("\n--------------------");
-        // console.log(
-        //     string(
-        //         abi.encodePacked(
-        //             "https://nftpreview.0xdev.codes/?code=",
-        //             finalTokenUri
-        //         )
-        //     )
-        // );
-        // console.log("--------------------\n");
-
         _safeMint(msg.sender, newItemId);
 
         // Update your URI!!!
         _setTokenURI(newItemId, finalTokenUri);
 
         _tokenIds.increment();
-        // console.log(
-        //     "An NFT w/ ID %s has been minted to %s",
-        //     newItemId,
-        //     msg.sender
-        // );
 
         emit NewEpicNFTMinted(msg.sender, newItemId);
+    }
+
+    function toString(uint256 value) internal pure returns (string memory) {
+        // Inspired by OraclizeAPI's implementation - MIT license
+        // https://github.com/oraclize/ethereum-api/blob/b42146b063c7d6ee1358846c198246239e9360e8/oraclizeAPI_0.4.25.sol
+
+        if (value == 0) {
+            return "0";
+        }
+        uint256 temp = value;
+        uint256 digits;
+        while (temp != 0) {
+            digits++;
+            temp /= 10;
+        }
+        bytes memory buffer = new bytes(digits);
+        while (value != 0) {
+            digits -= 1;
+            buffer[digits] = bytes1(uint8(48 + uint256(value % 10)));
+            value /= 10;
+        }
+        return string(buffer);
     }
 }
